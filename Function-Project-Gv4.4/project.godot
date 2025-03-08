@@ -10,5 +10,5 @@ config_version=5
 
 [application]
 
-config/name="Function-Project-Gv4.3"
-config/features=PackedStringArray("4.3", "Forward Plus")
+config/name="Function-Project-Gv4.4"
+config/features=PackedStringArray("4.4", "Forward Plus")
