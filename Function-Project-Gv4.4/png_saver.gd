@@ -17,33 +17,12 @@ func _run() -> void:
 		)
 	
 	else:
-		var data: PackedByteArray = PackedByteArray()
+		var img_data: PackedByteArray = PackedByteArray()
 		for pixel in 512*512:
 			for channel in 4:
-				data.append(randi_range(0,255))
-		
-		var img: Image = Image.create_from_data(512,512,false,Image.FORMAT_RGBA8,data)
-		var file_name: String
-		var datetime_dict: Dictionary = Time.get_datetime_dict_from_system()
-		var timezone: Dictionary = Time.get_time_zone_from_system()
-		
-		for key in datetime_dict.keys():
-			if (key == "weekday"): continue
-			var appendage: String
-			match(key):
-				"year": appendage = str(datetime_dict[key]) + "_"
-				"month": appendage = month_string_from_int(datetime_dict[key]) + "_"
-				"day": appendage = ordinal_numeral_string_from_int(datetime_dict[key]) + "_"
-				"hour": appendage = "%02d"%[datetime_dict[key]] + "-"
-				"minute": appendage = "%02d"%[datetime_dict[key]] + "-"
-				"second":
-					appendage = appendage + "%02d"%[datetime_dict[key]] + "_"
-					appendage = appendage + UTC_stamp_string_from_minutes_int(timezone["bias"]) + "_"
-					appendage = appendage + "dst"+("TRUE" if datetime_dict["dst"] else "FALSE") + "_"
-					appendage = appendage + "rt-msec-"+str(Time.get_ticks_msec())
-				_: breakpoint
-			file_name = file_name + appendage
-		file_name = file_name + ".png"
+				img_data.append(randi_range(0,255))
+		var img: Image = Image.create_from_data(512,512,false,Image.FORMAT_RGBA8,img_data)
+		var file_name: String = generate_timestamp() + ".png"
 		
 		var save_path: String = JSON_dictionary.load(
 			engine_exe_folder+"/project_directory.txt"
@@ -62,6 +41,31 @@ static func parent_folder(path: String) -> String:
 			path = path.erase(path.length()-1,1)
 	path = path.erase(path.length()-1,1)
 	return path
+
+static func generate_timestamp() -> String:
+	var timestamp: String
+	var datetime: Dictionary = Time.get_datetime_dict_from_system()
+	var timezone: Dictionary = Time.get_time_zone_from_system()
+	var runtime_milliseconds: int = Time.get_ticks_msec()
+	
+	for key in datetime.keys():
+		if (key == "weekday"): continue
+		var appendage: String
+		match(key):
+			"year": appendage = str(datetime[key]) + "_"
+			"month": appendage = month_string_from_int(datetime[key]) + "_"
+			"day": appendage = ordinal_numeral_string_from_int(datetime[key]) + "_"
+			"hour": appendage = "%02d"%[datetime[key]] + "-"
+			"minute": appendage = "%02d"%[datetime[key]] + "-"
+			"second":
+				appendage = appendage + "%02d"%[datetime[key]] + "_"
+				appendage = appendage + UTC_stamp_string_from_minutes_int(timezone["bias"]) + "_"
+				appendage = appendage + "dst"+("TRUE" if datetime["dst"] else "FALSE") + "_"
+				appendage = appendage + "rt-msec-"+str(runtime_milliseconds)
+			_: breakpoint
+		timestamp = timestamp + appendage
+	
+	return timestamp
 
 static func month_string_from_int(month:int) -> String:
 	const months: Dictionary[int,String] = {
