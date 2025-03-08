@@ -1,4 +1,5 @@
 *.import
 # Godot 4+ specific ignores
+Archive/
 .godot/
 /android/
